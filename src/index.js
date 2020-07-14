@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const routes = require('./routes')
+require('./database')
 
 if(process.env.NODE_ENV === 'development')
 {

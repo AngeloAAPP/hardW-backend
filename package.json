@@ -8,11 +8,12 @@
   "author": "Angelo Scolfaro",
   "dependencies": {
     "express": "^4.17.1",
-    "morgan": "^1.10.0",
-    "sequelize": "^6.3.3"
+    "sequelize": "^6.3.3",
+    "tedious": "^8.3.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
+    "morgan": "^1.10.0",
     "nodemon": "^2.0.4",
     "sequelize-cli": "^6.2.0"
   }
