@@ -14,6 +14,7 @@ module.exports = {
                 password
             })
 
+<<<<<<< HEAD
             //omit password in return data
             return res.json({
                 name: user.name,
@@ -23,6 +24,9 @@ module.exports = {
                 email: user.email,
                 createdAt: user.createdAt
             })
+=======
+            return res.json(user)
+>>>>>>> c5b0aabc2fed7879841b770f11657b79c321695a
         }
         catch(err){
 
