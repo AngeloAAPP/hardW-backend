@@ -1,5 +1,8 @@
-const {Router} = require('express')
+const router = require('express').Router()
 
-const routes = Router()
+//import routes
+const users = require('./app/routes/users')
 
-module.exports = routes
+router.use('/users', users)
+
+module.exports = router
