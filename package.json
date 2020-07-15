@@ -7,6 +7,7 @@
   },
   "author": "Angelo Scolfaro",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "express": "^4.17.1",
     "sequelize": "^6.3.3",
     "tedious": "^8.3.0"

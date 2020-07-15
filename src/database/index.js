@@ -2,7 +2,7 @@ const {Sequelize} = require('sequelize')
 const dbConfig = require('../config/database')
 
 //import models
-const User = require('./models/User')
+const User = require('../app/models/User')
 
 const connection = new Sequelize(dbConfig)
 
