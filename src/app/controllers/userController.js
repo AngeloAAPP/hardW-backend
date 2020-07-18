@@ -1,4 +1,7 @@
 const User = require('../models/User')
+const {generateToken, generateRefreshToken} = require('../helpers/tokens')
+const {encode} = require('../helpers/hashids')
+const {client: Cache, setCache} = require('../helpers/redis')
 
 module.exports = {
     create: async(req,res) => {
@@ -13,16 +16,18 @@ module.exports = {
                 email,
                 password
             })
-
+            
             //omit password in return data
-            return res.json({
-                name: user.name,
-                lastName: user.lastName,
-                whatsapp: user.whatsapp,
-                avatarUrl: user.avatarUrl,
-                email: user.email,
-                createdAt: user.createdAt
-            })
+            user.password = undefined
+
+            const refreshToken = generateRefreshToken()
+
+            res.setHeader('Authorization', 'Bearer ' + generateToken({user: encode(user.id)}, 300))
+            res.setHeader('Refresh', refreshToken)
+
+            await setCache(Cache, refreshToken, encode(user.id), 2592000)
+
+            return res.status(201).json({...user.dataValues, id: encode(user.id), })
         }
         catch(err){
 
@@ -38,7 +43,11 @@ module.exports = {
         }
     },
     destroy: async(req,res) => {
+
+        console.log("User: ", req.user, "encode: ", encode(req.user))
+
         await User.destroy({where: {}})
-        res.send()
+        res.json({ sucess: true })
+
     }
 }

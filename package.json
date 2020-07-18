@@ -9,6 +9,9 @@
   "dependencies": {
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
+    "hashids": "^2.2.1",
+    "jsonwebtoken": "^8.5.1",
+    "redis": "^3.0.2",
     "sequelize": "^6.3.3",
     "tedious": "^8.3.0"
   },
