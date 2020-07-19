@@ -1,9 +1,9 @@
 const bcrypt = require('bcrypt')
 const User = require('../models/User')
 const {generateToken, generateRefreshToken} = require('../helpers/tokens')
-const {encode} = require('../helpers/hashids')
+const {encode, decode} = require('../helpers/hashids')
 const {client: Cache, setCache, getCache, destroyCache} = require('../helpers/redis')
-const { findOne } = require('../models/User')
+const {sendResetPasswordMail} = require('../services/mail')
 
 module.exports = {
     authenticate: async(req,res) => {
@@ -68,10 +68,21 @@ module.exports = {
                     success: false,
                     message: "token inválido"
                 })
+            
+            const userExists = await User.findByPk(decode(user), {
+                attributes: ['id']
+            })
+
+            if(!userExists)
+                return res.status(400).json({
+                    success: false,
+                    message: "Usuário não encontrado"
+                })
 
             await destroyCache(Cache,refreshToken)
             
             const newRefreshToken = generateRefreshToken()
+            await setCache(Cache, newRefreshToken, user, 2592000)
 
 
             res.setHeader('Authorization', generateToken({user}, 300))
@@ -96,8 +107,9 @@ module.exports = {
                     message: "Email é obrigatório"
                 })
             
-            const user = User.findOne({
-                where: {email}
+            const user = await User.findOne({
+                where: {email},
+                attributes: ['email', 'name']
             })
 
             if(!user)
@@ -111,7 +123,16 @@ module.exports = {
             //saving the generated token valid for 24 hours
             await setCache(Cache, tokenResetPassword, email, 86400)
 
-            //enviar email com o link contendo o token
+            try{
+                await sendResetPasswordMail({name: user.name, to: email, token: tokenResetPassword})
+            }
+            catch(err){
+                await destroyCache(Cache, tokenResetPassword)
+                return res.status(400).json({
+                    success: false,
+                    message: "Não foi possível enviar o email para redefinição de senha. Entre em contato"
+                })
+            }
 
             return res.json({
                 success: true,
@@ -126,21 +147,57 @@ module.exports = {
         }
     },
     refreshPassword: async(req,res) => {
-        const {password} = req.body
-        const {tokenResetPassword} = req.params
+        try{
+            const {password} = req.body
+            const {tokenResetPassword} = req.params
 
-        const email = await getCache(Cache, tokenResetPassword)
-        const user = await User.findOne({
-            where: {email}
-        })
+            if(!password || password.length < 5 || password.length > 20)
+                return res.status(400).json({
+                    success: false,
+                    message: "Senha é obrigatória e deve conter entre 5 e 20 caracteres"
+                })
+            
+            if(!tokenResetPassword)
+                return res.status(400).json({
+                    success: false,
+                    message: "Link para redefinição de senha inválido"
+                })
+            
+            const email = await getCache(Cache, tokenResetPassword)
+            
+            if(!email)
+                return res.status(400).json({
+                    success: false,
+                    message: "O link para redefinição de senha expirou"
+                })
+            
+            const user = await User.findOne({
+                where: {email},
+                attributes: ['id', 'password']
+            })
 
-        user.password = bcrypt.hash(password, 10)
-        user.save()
+            if(!user)
+                return res.status(400).json({
+                    success: false,
+                    message: "Usuário não encontrado"
+                })
 
-        return res.json({
-            success: true,
-            message: "Senha alterada com sucesso"
-        })
-        
+            user.password = await bcrypt.hash(password, 10)
+            await user.save()
+
+            //after the user changes the password, the token is invalidated
+            await destroyCache(Cache, tokenResetPassword)
+
+            return res.json({
+                success: true,
+                message: "Senha alterada com sucesso"
+            })
+        }
+        catch(err){
+            return res.status(400).json({
+                success: false,
+                message: "Erro interno no servidor"
+            })
+        }
     }
 }

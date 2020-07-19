@@ -5,12 +5,13 @@
     "start": "node src/index.js",
     "dev": "SET NODE_ENV=development&& nodemon src/index.js"
   },
-  "author": "Angelo Scolfaro",
+  "author": "Angelo Scolfaro <angelo-sc1@hotmail.com>",
   "dependencies": {
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
     "hashids": "^2.2.1",
     "jsonwebtoken": "^8.5.1",
+    "nodemailer": "^6.4.10",
     "redis": "^3.0.2",
     "sequelize": "^6.3.3",
     "tedious": "^8.3.0"
