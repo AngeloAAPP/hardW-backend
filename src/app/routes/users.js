@@ -1,16 +1,16 @@
 const router = require('express').Router();
 
-const {create, destroy} = require('../controllers/userController')
-const {authenticate, refreshAuthenticate, forgotPassword, refreshPassword} = require('../controllers/authController')
+const {create, update, changeAvatarUrl, changePassword, destroy} = require('../controllers/userController')
+
 
 const authorizate = require('../middlewares/authorizate')
+const upload = require('../middlewares/multer')
 
 router
-    .post('/', create)
-    .post('/authenticate', authenticate)
-    .post('/authenticate/refresh', refreshAuthenticate)
-    .post('/authenticate/forgotPassword', forgotPassword)
-    .post('/authenticate/refreshPassword/:tokenResetPassword', refreshPassword)
-    .delete('/', authorizate, destroy)
+    .post('/', upload.single('image'),create)
+    .put('/:userID', authorizate, update)
+    .patch('/:userID/avatarUrl',authorizate, upload.single('image'), changeAvatarUrl)
+    .patch('/:userID/password',authorizate, changePassword)
+    .delete('/:userID', authorizate, destroy)
 
 module.exports = router

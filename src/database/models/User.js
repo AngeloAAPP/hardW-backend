@@ -52,6 +52,10 @@ class User extends Model{
                     }
                 }
             },
+            imagePublicID: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
             email: {
                 type: DataTypes.STRING,
                 allowNull: false,
@@ -87,6 +91,12 @@ class User extends Model{
             }    
         })
     }
+    static associate(models){
+        this.hasMany(models.Address, {
+            as: 'addresses',
+            foreignKey: 'userID'
+        })
+    } 
 }
 
 //check if the email is registered

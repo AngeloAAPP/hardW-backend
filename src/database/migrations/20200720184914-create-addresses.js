@@ -2,39 +2,44 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-     return queryInterface.createTable('users', { 
+     return queryInterface.createTable('addresses', { 
        id: {
          type: Sequelize.INTEGER,
          primaryKey: true,
          allowNull: false,
          autoIncrement: true
        },
+       userID: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+       },
        name: {
          type: Sequelize.STRING,
          allowNull: false
        },
-       lastName: {
+       zipCode: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      whatsapp: {
+      street: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      avatarUrl: {
+      neighbourhood: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: false
       },
-      imagePublicID: {
-        type: Sequelize.STRING,
-        allowNull: true
+      uf: {
+        type: Sequelize.STRING(2),
+        allowNull: false
       },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      password: {
+      city: {
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -51,6 +56,6 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     
-     return queryInterface.dropTable('users');
+     return queryInterface.dropTable('addresses');
   }
 };

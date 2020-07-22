@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt')
-const User = require('../models/User')
+const User = require('../../database/models/User')
 const {generateToken, generateRefreshToken} = require('../helpers/tokens')
 const {encode, decode} = require('../helpers/hashids')
 const {client: Cache, setCache, getCache, destroyCache} = require('../helpers/redis')
@@ -18,7 +18,7 @@ module.exports = {
 
             const user = await User.findOne({
                 where: {email},
-                attributes: ['id', 'email', 'password']
+                attributes: ['id','name', 'lastName', 'email', 'password', 'whatsapp', 'avatarUrl', 'createdAt']
             })
 
             if(!user)
@@ -35,12 +35,17 @@ module.exports = {
 
             const refreshToken = generateRefreshToken()
 
-            res.setHeader('Authorization', 'Bearer ' + generateToken({user: encode(user.id)}, 300))
+            const encodedID = encode(user.id)
+
+            res.setHeader('Authorization', 'Bearer ' + generateToken({user: encodedID}, 300))
             res.setHeader('Refresh', refreshToken)
 
-            await setCache(Cache, refreshToken, encode(user.id), 2592000)
+            await setCache(Cache, refreshToken, encodedID, 2592000)
 
-            return res.json({ success: true })
+            //omit password in return data
+            user.password = undefined
+
+            return res.json({ success: true, ...user.dataValues, id: encodedID })
         }
         catch(err){
             return res.status(500).json({
@@ -196,7 +201,7 @@ module.exports = {
         catch(err){
             return res.status(400).json({
                 success: false,
-                message: "Erro interno no servidor"
+                message: "Erro no servidor. Tente novamente"
             })
         }
     }
