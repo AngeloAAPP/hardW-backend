@@ -4,7 +4,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js",
     "dev": "SET NODE_ENV=development&& nodemon src/index.js",
-    "ubuntu": "NODE_ENV=development&& nodemon src/index.js"
+    "ubuntu": "export NODE_ENV=development&& nodemon src/index.js"
   },
   "author": "Angelo Scolfaro <angelo-sc1@hotmail.com>",
   "dependencies": {
