@@ -3,8 +3,7 @@ try{
 }catch(err){}
 
 module.exports = {
-    dialect: 'mssql',
-    port: 49873,
+    dialect: 'postgres',
     database: 'hardw',
     host: 'localhost',
     username: process.env.DB_USER,
