@@ -246,7 +246,7 @@ module.exports = {
                     message: "Usuário não encontrado"
                 })
 
-            if(user.avatarURL !== null)
+            if(user.avatarURL)
                 await cloudinary.uploader.destroy(user.imagePublicID)
 
             await user.destroy()

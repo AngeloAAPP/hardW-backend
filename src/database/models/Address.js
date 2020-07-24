@@ -79,18 +79,18 @@ class Address extends Model{
                     len: {
                         args: [3,100],
                         msg: "A cidade deve conter entre 3 e 100 caracteres"
-                    }
+                    },
                 }
             }
         },{
             sequelize,
-            tableName: 'addresses'
+            tableName: 'addresses',
         })
     }
     static associate(models){
         this.belongsTo(models.User, {
             as: 'user',
-            foreignKey: 'userID'
+            foreignKey: 'userID',
         })
     }
 }
