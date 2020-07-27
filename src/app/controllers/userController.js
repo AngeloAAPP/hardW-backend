@@ -81,15 +81,6 @@ module.exports = {
     },
     update: async(req,res) => {
 
-        const {userID} = req.params
-
-        if(decode(userID) !== req.user)
-    
-            return res.status(403).json({
-                success: false,
-                message: "Acesso negado"
-            })
-
         const {name, lastName, whatsapp} = req.body
 
         const user = await User.findByPk(req.user)
@@ -115,14 +106,6 @@ module.exports = {
         }
     },
     changeAvatarUrl: async(req,res) => {
-        const {userID} = req.params
-
-        if(decode(userID) !== req.user)
-    
-            return res.status(403).json({
-                success: false,
-                message: "Acesso negado"
-            })
 
         let image = null
 
@@ -176,14 +159,8 @@ module.exports = {
     },
     changePassword: async(req,res) => {
 
-        const {userID} = req.params
         const {password, currentPassword} = req.body
 
-        if(decode(userID) !== req.user)
-            return res.status(403).json({
-                success: false,
-                message: "Acesso negado"
-            })
 
         try {
             if(!password || !currentPassword)
@@ -227,18 +204,20 @@ module.exports = {
 
     },
     destroy: async(req,res) => {
-
-        const {userID} = req.params
-
-        if(decode(userID) !== req.user)
-    
-            return res.status(403).json({
-                success: false,
-                message: "Acesso negado"
-            })
         
         try {
-            const user = await User.findByPk(req.user, {attributes: ['id', 'avatarURL', 'imagePublicID']})
+            const user = await User.findByPk(req.user, {
+                attributes: ['id', 'avatarUrl', 'imagePublicID'],
+                include: {
+                    association: 'adverts',
+                    attributes: ['id'],
+                    include: {
+                        association: 'images',
+                        attributes: ['id', 'publicID']
+                    }
+                }
+            })
+
 
             if(!user)
                 return res.status(400).json({
@@ -246,14 +225,26 @@ module.exports = {
                     message: "Usuário não encontrado"
                 })
 
-            if(user.avatarURL)
+            if(user.avatarUrl)
                 await cloudinary.uploader.destroy(user.imagePublicID)
+
+            const advertsImages = user.dataValues.adverts.map(advertisement => advertisement.images[0])
+
+            for (const image of advertsImages) {
+                if(image)
+                    {
+                        try {
+                            await cloudinary.uploader.destroy(image.publicID)
+                        } catch (err) {}
+                    }
+            }
 
             await user.destroy()
             await user.save()
 
             return res.json({ success: true })
         } catch (err) {
+            console.log(err)
             return res.status(500).json({success: false, message: "Erro no servidor. Tente novamente"})
         }
     }

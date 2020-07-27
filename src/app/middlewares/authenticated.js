@@ -1,7 +1,7 @@
 const {verifyToken} = require('../helpers/tokens')
 const {decode} = require('../helpers/hashids')
 
-module.exports = authorizate = (req, res, next) => {
+module.exports = authenticated = (req, res, next) => {
 
     const {authorization} = req.headers
 

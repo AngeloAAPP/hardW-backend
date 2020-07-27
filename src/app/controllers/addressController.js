@@ -4,13 +4,6 @@ const Address = require('../../database/models/Address')
 module.exports = {
     create: async(req, res) => {
         const {name, zipCode, street, neighbourhood, uf, city } = req.body
-        const {userID} = req.params
-
-        if(decode(userID) !== req.user)
-            return res.status(403).json({
-                success: false,
-                message: "Acesso negado"
-            })
         
         try {
             const address = await Address.create({
@@ -43,7 +36,6 @@ module.exports = {
         }
     },
     destroy: async(req,res) => {
-        const {userID} = req.params
         const {addressID} = req.body
 
         if(!addressID)
@@ -52,11 +44,6 @@ module.exports = {
                 message: "ID do endereço é obrigatório"
             })
 
-        if(decode(userID) !== req.user)
-            return res.status(403).json({
-                success: false,
-                message: "Acesso negado"
-            })
         
         try {
             const address = await Address.findByPk(decode(addressID))

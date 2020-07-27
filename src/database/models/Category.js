@@ -4,7 +4,7 @@ class Category extends Model{
     static init(sequelize){
         super.init({
             name: DataTypes.STRING,
-            imageURL: DataTypes.STRING
+            imageUrl: DataTypes.STRING
         },{
             sequelize, 
             tableName: 'categories'
@@ -14,6 +14,10 @@ class Category extends Model{
         this.belongsToMany(models.Subcategory, {
             as: 'subcategories',
             through: 'categories-subcategories',
+            foreignKey: 'categoryID'
+        })
+        this.hasMany(models.Advertisement, {
+            as: 'adverts',
             foreignKey: 'categoryID'
         })
     }

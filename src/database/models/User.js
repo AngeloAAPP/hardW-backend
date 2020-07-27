@@ -96,6 +96,14 @@ class User extends Model{
             as: 'address',
             foreignKey: 'userID'
         })
+        this.hasMany(models.Advertisement, {
+            as: 'adverts',
+            foreignKey: 'userID'
+        })
+        this.hasMany(models.AdvertImage, {
+            as: 'images',
+            foreignKey: 'advertisementID'
+        })
     } 
 }
 
