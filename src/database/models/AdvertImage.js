@@ -1,5 +1,4 @@
 const {Model, DataTypes} = require('sequelize')
-const {cloudinary} = require('../../config/cloudinary')
 
 class AdvertImage extends Model{
     static init(sequelize){

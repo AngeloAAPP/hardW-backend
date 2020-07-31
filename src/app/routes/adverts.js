@@ -1,15 +1,21 @@
 const router = require('express').Router();
 
-const {create, destroy} = require('../controllers/advertisementController')
+const {create, index, show, addImages, dropImage, update, destroy} = require('../controllers/advertisementController')
+const {create: createQuestion, reply} = require('../controllers/questionController')
 
 
-const authenticated = require('../middlewares/authenticated')
 const authorizaded = require('../middlewares/authorizaded')
 const upload = require('../middlewares/multer')
 
-router
-    .use(authenticated)
-    .post('/:userID',authorizaded, upload.array('image', 6),create)
-    .delete('/:userID',authorizaded, destroy)
+router 
+    .get('/', index)
+    .get('/:advertisementID', show)
+    .post('/', authorizaded,upload.array('image', 6),create)
+    .post('/:advertisementID/image', authorizaded, upload.array('image', 6),addImages)
+    .post('/:advertisementID/question',authorizaded, createQuestion)
+    .put('/:advertisementID/answer', authorizaded, reply)
+    .put('/:advertisementID', authorizaded, update)
+    .delete('/:advertisementID/image', authorizaded, dropImage)
+    .delete('/:advertisementID', authorizaded, destroy)
 
 module.exports = router

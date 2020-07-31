@@ -20,10 +20,6 @@ module.exports = {
         onDelete: 'CASCADE',
         unique: true
        },
-       name: {
-         type: Sequelize.STRING,
-         allowNull: false
-       },
        zipCode: {
         type: Sequelize.STRING,
         allowNull: false

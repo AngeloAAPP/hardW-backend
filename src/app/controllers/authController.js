@@ -6,6 +6,7 @@ const {client: Cache, setCache, getCache, destroyCache} = require('../helpers/re
 const {sendResetPasswordMail} = require('../services/mail')
 
 module.exports = {
+    //login
     authenticate: async(req,res) => {
         try{
             const {email, password} = req.body
@@ -18,7 +19,22 @@ module.exports = {
 
             const user = await User.findOne({
                 where: {email},
-                attributes: ['id','name', 'lastName', 'email', 'password', 'whatsapp', 'avatarUrl', 'createdAt']
+                attributes: ['id','name', 'lastName', 'email', 'password', 'whatsapp', 'avatarUrl', 'createdAt'],
+                include: [
+                    {
+                        association: 'address',
+                        attributes: ['zipCode', 'street', 'neighbourhood', 'city', 'uf']
+                    },
+                    {
+                        association: 'adverts',
+                        include: {
+                            association: 'images',
+                            attributes: ['url'],
+                            limit: 1
+                        }
+                    }
+                    
+                ]
             })
 
             if(!user)
@@ -27,6 +43,7 @@ module.exports = {
                     message: "Nenhum usuário foi encontrado com o email informado"
                 })
 
+            //compare password
             if(! await bcrypt.compare(password, user.password))
                 return res.status(401).json({
                     success: false,
@@ -35,6 +52,7 @@ module.exports = {
 
             const refreshToken = generateRefreshToken()
 
+            //encode user id
             const encodedID = encode(user.id)
 
             res.setHeader('Authorization', 'Bearer ' + generateToken({user: encodedID}, 86400))
@@ -45,9 +63,22 @@ module.exports = {
             //omit password in return data
             user.password = undefined
 
-            return res.json({ success: true, ...user.dataValues, id: encodedID })
+            //encode adverts ids
+            serializedAdverts = user.adverts.map(advertisement => ({
+                ...advertisement.dataValues,
+                id: encode(advertisement.id)
+            }))
+
+            return res.json({ 
+                success: true, 
+                ...user.dataValues, 
+                id: encodedID ,
+                adverts: serializedAdverts
+            })
         }
         catch(err){
+
+            console.log(err)
             return res.status(500).json({
                 success: false,
                 message: "Erro no servidor. Tente novamente"
@@ -55,6 +86,7 @@ module.exports = {
         }
 
     },
+    //refresh token
     refreshAuthenticate: async(req,res) => {
         try{
             const {refresh: refreshToken} = req.headers
@@ -68,6 +100,7 @@ module.exports = {
                 })
 
             const user = await getCache(Cache, refreshToken)
+            
             if(user != currentID || user === null)
                 return res.status(401).json({
                     success: false,
@@ -102,6 +135,7 @@ module.exports = {
             })
         }
     },
+    //send password reset email
     forgotPassword: async(req,res) => {
         try{
             const {email} = req.body;
@@ -151,6 +185,7 @@ module.exports = {
             })
         }
     },
+    //change the password via the link sent to the email
     refreshPassword: async(req,res) => {
         try{
             const {password} = req.body

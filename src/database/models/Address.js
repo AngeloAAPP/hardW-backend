@@ -3,19 +3,6 @@ const {Model, DataTypes} = require('sequelize')
 class Address extends Model{
     static init(sequelize){
         super.init({
-            name: {
-                type: DataTypes.STRING,
-                allowNull: false,
-                validate: {
-                    notNull: {
-                        msg: 'O nome do endereço é obrigatório'
-                    },
-                    len: {
-                        args: [2,20],
-                        msg: "O nome do endereço deve conter entre 2 e 20 caracteres"
-                    }
-                }
-            },
             zipCode: {
                 type: DataTypes.STRING,
                 allowNull: false,

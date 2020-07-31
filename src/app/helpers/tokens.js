@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 
+//generate jsonwebtoken
 const generateToken = (payload, expiresIn) => {
     return jwt.sign(payload, process.env.SALT_KEY, {
         expiresIn

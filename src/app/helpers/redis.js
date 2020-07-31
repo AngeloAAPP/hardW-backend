@@ -3,6 +3,7 @@ const redisConfig = require('../../config/redis')
 
 const client = redis.createClient(redisConfig)
 
+//inserts a value in the redis
 const setCache = (client, key, value, time) => {
     return new Promise((resolve, reject) => {
         client.set(key, value, 'ex', time, (err) => {
@@ -13,6 +14,7 @@ const setCache = (client, key, value, time) => {
     })
 }
 
+//get a value in the redis
 const getCache = (client, key) => {
     return new Promise((resolve, reject) => {
         client.get(key, (err, value) => {
@@ -23,6 +25,7 @@ const getCache = (client, key) => {
     })
 }
 
+//delete a value in the redis
 const destroyCache = (client, key) => {
     return new Promise((resolve, reject) => {
         client.DEL(key, (err, value) => {

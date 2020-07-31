@@ -1,11 +1,12 @@
 const User = require('../../database/models/User')
 const {generateToken, generateRefreshToken} = require('../helpers/tokens')
-const {encode, decode} = require('../helpers/hashids')
+const {encode} = require('../helpers/hashids')
 const {client: Cache, setCache} = require('../helpers/redis')
 const {cloudinary} = require('../../config/cloudinary')
 const path = require('path')
 const fs = require('fs')
 const bcrypt = require('bcrypt')
+const DBconnection = require('../../database')
 
 function dropTemporaryImage(image){
     fs.unlink(path.resolve(__dirname, '..', '..', '..', 'temp', image), (err) => {
@@ -15,8 +16,9 @@ function dropTemporaryImage(image){
 }
 
 module.exports = {
+    //create user
     create: async(req,res) => {
-        const {name, lastName, whatsapp, email, password} = req.body;
+        const {name, lastName, whatsapp, email, password, zipCode, street, neighbourhood, uf, city} = req.body;
         let image, avatarUrl, imagePublicID = null
 
         try {
@@ -25,40 +27,58 @@ module.exports = {
 
         try{
 
-            if(image){
-               const {secure_url, public_id} = await cloudinary.uploader.upload(path.resolve(__dirname, '..', '..', '..', 'temp', image), {
-                   folder: 'profiles',
-               })
-               
-               avatarUrl = secure_url
-               imagePublicID = public_id
-            }
+            const result = await DBconnection.transaction(async transaction => {
+                if(image){
+                    //upload image
+                    const {secure_url, public_id} = await cloudinary.uploader.upload(path.resolve(__dirname, '..', '..', '..', 'temp', image), {
+                        folder: 'profiles',
+                    })
+                    
+                    avatarUrl = secure_url
+                    imagePublicID = public_id
+                 }
+     
+                 const user = await User.create({
+                     name,
+                     lastName,
+                     whatsapp,
+                     avatarUrl,
+                     imagePublicID,
+                     email,
+                     password
+                 }, {transaction})
+                 
+                 //omit password and image ID in return data
+                 user.password = undefined
+                 user.imagePublicID = undefined
 
-            const user = await User.create({
-                name,
-                lastName,
-                whatsapp,
-                avatarUrl,
-                imagePublicID,
-                email,
-                password
+                 //create address
+                 const address = await user.createAddress({
+                    zipCode,
+                    street,
+                    neighbourhood,
+                    uf,
+                    city,
+                }, {transaction})
+
+                address.userID = undefined
+
+                return {user: {...user.dataValues, id: encode(user.id)}, address: {...address.dataValues, id: encode(address.id)}}
+
             })
-            
-            //omit password and image ID in return data
-            user.password = undefined
-            user.imagePublicID = undefined
+
 
             const refreshToken = generateRefreshToken()
 
-            res.setHeader('Authorization', 'Bearer ' + generateToken({user: encode(user.id)}, 300))
+            res.setHeader('Authorization', 'Bearer ' + generateToken({user: encode(result.user.id)}, 300))
             res.setHeader('Refresh', refreshToken)
 
-            await setCache(Cache, refreshToken, encode(user.id), 2592000)
+            await setCache(Cache, refreshToken, encode(result.user.id), 2592000)
             
             if(image)
                 dropTemporaryImage(image)
 
-            return res.status(201).json({...user.dataValues, id: encode(user.id), })
+            return res.status(201).json(result)
         }
         catch(err){
             if(image){
@@ -79,9 +99,10 @@ module.exports = {
             }   
         }
     },
+    //update user
     update: async(req,res) => {
 
-        const {name, lastName, whatsapp} = req.body
+        const {name, lastName, whatsapp, city, neighbourhood, uf, street, zipCode} = req.body
 
         const user = await User.findByPk(req.user)
 
@@ -92,8 +113,17 @@ module.exports = {
             })
 
         try {
-           await user.update({name, lastName, whatsapp})
-           return res.json({success: true})
+
+            const result = await DBconnection.transaction(async transaction => {
+                const address = await user.getAddress({transaction})
+
+                await user.update({name, lastName, whatsapp},{transaction})
+                await address.update({city, neighbourhood, uf, street, zipCode},{transaction})
+
+                return {success: true}
+            })
+           
+           return res.json(result)
         } catch (err) {
             try{
                 let error = err.errors[0].message;
@@ -105,6 +135,7 @@ module.exports = {
             }   
         }
     },
+    //change user profile photo
     changeAvatarUrl: async(req,res) => {
 
         let image = null
@@ -123,6 +154,7 @@ module.exports = {
                 image = req.file.filename
             } catch (err) {}
 
+            //deletes the current image from the cloudinary server
             if(user.avatarUrl !== null)
                 await cloudinary.uploader.destroy(user.imagePublicID)
 
@@ -132,6 +164,7 @@ module.exports = {
                 user.imagePublicID = null
             }
             else{
+                //upload image
                 const {secure_url, public_id} = await cloudinary.uploader.upload(path.resolve(__dirname, '..', '..', '..', 'temp', image), {
                     folder: 'profiles',
                 })
@@ -157,6 +190,7 @@ module.exports = {
             })
         }
     },
+    //change user password
     changePassword: async(req,res) => {
 
         const {password, currentPassword} = req.body
@@ -203,6 +237,7 @@ module.exports = {
 
 
     },
+    //delete user
     destroy: async(req,res) => {
         
         try {
@@ -225,11 +260,13 @@ module.exports = {
                     message: "Usuário não encontrado"
                 })
 
+            //deletes the profile photo of the cloudinary server
             if(user.avatarUrl)
                 await cloudinary.uploader.destroy(user.imagePublicID)
 
             const advertsImages = user.dataValues.adverts.map(advertisement => advertisement.images[0])
 
+            //deletes images from user adverts on the cloudinary server
             for (const image of advertsImages) {
                 if(image)
                     {

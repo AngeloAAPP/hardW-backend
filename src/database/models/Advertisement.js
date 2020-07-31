@@ -1,8 +1,8 @@
-const {Model, DataTypes} = require('sequelize')
+const { Model, DataTypes } = require('sequelize')
 const Category = require('../models/Category')
 
-class Advertisement extends Model{
-    static init(sequelize){
+class Advertisement extends Model {
+    static init(sequelize) {
         super.init({
             name: {
                 type: DataTypes.STRING,
@@ -12,20 +12,20 @@ class Advertisement extends Model{
                         msg: "Nome do anúncio é obrigatório"
                     },
                     len: {
-                        args: [4,60],
+                        args: [4, 60],
                         msg: "Nome do anúncio deve conter entre 4 e 60 caracteres"
                     }
                 }
             },
             description: {
                 type: DataTypes.STRING(500),
-                allowNull: false, 
+                allowNull: false,
                 validate: {
                     notNull: {
                         msg: "Descrição do anúncio é obrigatória"
                     },
                     len: {
-                        args: [20,500],
+                        args: [20, 500],
                         msg: "A descrição do anúncio deve conter entre 20 e 500 caracteres"
                     }
                 }
@@ -44,14 +44,18 @@ class Advertisement extends Model{
                 allowNull: false,
                 defaultValue: "Ativo"
             },
-        },{
+        }, {
             sequelize,
             tableName: 'adverts',
             hooks: {
-                beforeCreate: async function(advertisement){
-                    if(!advertisement.categoryID)
+                
+                beforeCreate: async function (advertisement) {
+
+                    //check categories and subcategories
+
+                    if (!advertisement.categoryID)
                         throw new Error("Categoria é obrigatória")
-                    
+
                     const subcategories = await Category.findByPk(advertisement.categoryID, {
                         attributes: ['id'],
                         include: {
@@ -60,22 +64,28 @@ class Advertisement extends Model{
                         }
                     })
 
-                    if(!subcategories)
+                    if (!subcategories)
                         throw new Error("Categoria não encontrada")
 
-                    if(!advertisement.subcategoryID && subcategories.dataValues.subcategories.length > 0)
+                    if (!advertisement.subcategoryID && subcategories.dataValues.subcategories.length > 0)
                         throw new Error("Subcategoria é obrigatória para a categoria escolhida")
 
                     const subcategoriesIDS = subcategories.dataValues.subcategories.map(sub => sub.dataValues.id)
 
-                    if(advertisement.subcategoryID && !subcategoriesIDS.includes(+ advertisement.subcategoryID))
+                    //checks if the chosen category has the chosen subcategory
+                    if (advertisement.subcategoryID && !subcategoriesIDS.includes(+ advertisement.subcategoryID))
                         throw new Error("Subcategoria inválida para a categoria escolhida")
 
+                },
+                beforeUpdate: async function ({status}) {
+                    if (status)
+                        if (status !== 'Ativo' && status !== 'Inativo')
+                            throw new Error("status inválido! deve ser Ativo ou Inativo")
                 }
             }
         })
     }
-    static associate(models){
+    static associate(models) {
         this.belongsTo(models.User, {
             as: 'user',
             foreignKey: 'userID'
@@ -90,6 +100,10 @@ class Advertisement extends Model{
         })
         this.hasMany(models.AdvertImage, {
             as: 'images',
+            foreignKey: 'advertisementID'
+        })
+        this.hasMany(models.Question, {
+            as: 'questions',
             foreignKey: 'advertisementID'
         })
     }
