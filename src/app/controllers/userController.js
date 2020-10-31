@@ -67,13 +67,12 @@ module.exports = {
 
             })
 
-
             const refreshToken = generateRefreshToken()
 
-            res.setHeader('Authorization', 'Bearer ' + generateToken({user: encode(result.user.id)}, 300))
+            res.setHeader('Authorization', 'Bearer ' + generateToken({user: result.user.id}, 300))
             res.setHeader('Refresh', refreshToken)
 
-            await setCache(Cache, refreshToken, encode(result.user.id), 2592000)
+            await setCache(Cache, refreshToken, result.user.id, 2592000)
             
             if(image)
                 dropTemporaryImage(image)
