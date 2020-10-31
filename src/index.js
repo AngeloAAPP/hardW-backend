@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const routes = require('./routes')
 
 if(process.env.NODE_ENV === 'development')
 {
@@ -8,6 +7,9 @@ if(process.env.NODE_ENV === 'development')
     const morgan = require('morgan')
     app.use(morgan('dev'))
 }
+
+const routes = require('./routes')
+require('./database')
 
 app.use(express.json())
 app.use(routes)
