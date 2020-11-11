@@ -12,7 +12,9 @@ if(process.env.NODE_ENV === 'development')
 const routes = require('./routes')
 require('./database')
 
-app.use(cors())
+app.use(cors({
+    exposedHeaders: ['Authorization', 'Refresh']
+}))
 app.use(express.json())
 app.use(routes)
 
