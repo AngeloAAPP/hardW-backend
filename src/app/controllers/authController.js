@@ -55,7 +55,7 @@ module.exports = {
             //encode user id
             const encodedID = encode(user.id)
 
-            res.setHeader('Authorization', 'Bearer ' + generateToken({user: encodedID}, 86400))
+            res.setHeader('Authorization', 'Bearer ' + generateToken({user: encodedID}, 300))
             res.setHeader('Refresh', refreshToken)
 
             await setCache(Cache, refreshToken, encodedID, 2592000)

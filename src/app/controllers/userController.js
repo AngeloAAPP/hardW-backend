@@ -134,6 +134,34 @@ module.exports = {
             }   
         }
     },
+    profile: async(req,res) => {
+        const user = await User.findByPk(req.user, {
+            attributes: ['id','name', 'lastName', 'email', 'whatsapp', 'avatarUrl', 'createdAt'],
+                include: [
+                    {
+                        association: 'address',
+                        attributes: ['zipCode', 'street', 'neighbourhood', 'city', 'uf']
+                    },
+                    {
+                        association: 'adverts',
+                        include: {
+                            association: 'images',
+                            attributes: ['url'],
+                            limit: 1
+                        }
+                    }
+                    
+                ]    
+        })
+
+        if(!user)
+            return res.status(400).json({
+                success: false,
+                message: "Usuário não encontrado"
+            })
+
+        return res.json(user)
+    },
     //change user profile photo
     changeAvatarUrl: async(req,res) => {
 
