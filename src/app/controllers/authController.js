@@ -102,7 +102,7 @@ module.exports = {
             const user = await getCache(Cache, refreshToken)
             
             if(user != currentID || user === null)
-                return res.status(401).json({
+                return res.status(400).json({
                     success: false,
                     message: "token inválido"
                 })
