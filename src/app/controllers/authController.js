@@ -123,7 +123,7 @@ module.exports = {
             await setCache(Cache, newRefreshToken, user, 2592000)
 
 
-            res.setHeader('Authorization', generateToken({user}, 300))
+            res.setHeader('Authorization', 'Bearer ' + generateToken({user}, 300))
             res.setHeader('Refresh', newRefreshToken)
 
             return res.json({ success : true })

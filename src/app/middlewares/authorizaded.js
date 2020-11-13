@@ -5,7 +5,7 @@ const {decode} = require('../helpers/hashids')
 module.exports = authenticated = (req, res, next) => {
 
     const {authorization} = req.headers
-    const userID = req.body.userID || req.query.userID
+    const userID = req.body.userID || req.query.userID || req.headers.uid
 
     try{
         const token = authorization.split(' ')
