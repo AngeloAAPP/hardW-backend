@@ -123,7 +123,7 @@ module.exports = {
             await setCache(Cache, newRefreshToken, user, 2592000)
 
 
-            res.setHeader('Authorization', generateToken({user}, 300))
+            res.setHeader('Authorization', 'Bearer ' + generateToken({user}, 300))
             res.setHeader('Refresh', newRefreshToken)
 
             return res.json({ success : true })
@@ -134,6 +134,21 @@ module.exports = {
                 message: "Erro no servidor. Tente novamente"
             })
         }
+    },
+    logout: async(req,res) => {
+        const {refresh} = req.headers
+
+        if(!refresh)
+            return res.status(400).json({
+                success: false,
+                message: "token ausente"
+            })
+
+        destroyCache(Cache,refresh)
+
+        return res.json()
+
+
     },
     //send password reset email
     forgotPassword: async(req,res) => {
