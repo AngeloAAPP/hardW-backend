@@ -38,14 +38,14 @@ module.exports = {
             })
 
             if(!user)
-                return res.status(401).json({
+                return res.status(400).json({
                     success: false,
                     message: "Nenhum usuário foi encontrado com o email informado"
                 })
 
             //compare password
             if(! await bcrypt.compare(password, user.password))
-                return res.status(401).json({
+                return res.status(400).json({
                     success: false,
                     message: "Senha incorreta"
                 })
