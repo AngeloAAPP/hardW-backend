@@ -147,7 +147,6 @@ module.exports = {
                         include: {
                             association: 'images',
                             attributes: ['url'],
-                            limit: 1
                         }
                     }
                     
@@ -160,7 +159,17 @@ module.exports = {
                 message: "Usuário não encontrado"
             })
 
-        return res.json(user)
+        const serializedAdverts = user.adverts.map(advertisement => ({
+            ...advertisement.dataValues,
+            id: encode(advertisement.id),
+            userID: encode(advertisement.userID)
+        }))
+
+        return res.json({
+            ...user.dataValues, 
+            id: encode(user.id), 
+            adverts: serializedAdverts
+        })
     },
     //change user profile photo
     changeAvatarUrl: async(req,res) => {

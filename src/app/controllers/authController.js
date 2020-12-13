@@ -29,8 +29,7 @@ module.exports = {
                         association: 'adverts',
                         include: {
                             association: 'images',
-                            attributes: ['url'],
-                            limit: 1
+                            attributes: ['url']
                         }
                     }
                     
@@ -64,9 +63,10 @@ module.exports = {
             user.password = undefined
 
             //encode adverts ids
-            serializedAdverts = user.adverts.map(advertisement => ({
+            const serializedAdverts = user.adverts.map(advertisement => ({
                 ...advertisement.dataValues,
-                id: encode(advertisement.id)
+                id: encode(advertisement.id),
+                userID: encode(advertisement.userID)
             }))
 
             return res.json({ 
