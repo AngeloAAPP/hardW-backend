@@ -101,7 +101,7 @@ module.exports = {
                         //upload images
                         for (const image of req.files) {
                             const { secure_url, public_id } = await cloudinary.uploader.upload(path.resolve(__dirname, '..', '..', '..', 'temp', image.filename), {
-                                folder: 'adverts'
+                                folder: 'posts'
                             })
                             uploadedImages.push({ secure_url, public_id })
                         }
@@ -345,7 +345,7 @@ module.exports = {
                 //upload images
                 for (const image of req.files) {
                     const { secure_url, public_id } = await cloudinary.uploader.upload(path.resolve(__dirname, '..', '..', '..', 'temp', image.filename), {
-                        folder: 'adverts'
+                        folder: 'posts'
                     })
                     uploadedImages.push({ secure_url, public_id })
                 }
