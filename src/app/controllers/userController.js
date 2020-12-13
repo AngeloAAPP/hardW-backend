@@ -289,18 +289,23 @@ module.exports = {
 
             //deletes the profile photo of the cloudinary server
             if(user.avatarUrl)
-                await cloudinary.uploader.destroy(user.imagePublicID)
+                await cloudinary.uploader.destroy(user.imagePublicID)    
 
-            const advertsImages = user.dataValues.adverts.map(advertisement => advertisement.images[0])
+            const advertsImages = user.dataValues.adverts.map(advertisement => advertisement.images)
+
+            console.log("advertImages é: ", advertsImages)
 
             //deletes images from user adverts on the cloudinary server
-            for (const image of advertsImages) {
-                if(image)
+            for (const advert of advertsImages) {
+                for(const image of advert)
+                {
+                    if(image)
                     {
                         try {
                             await cloudinary.uploader.destroy(image.publicID)
                         } catch (err) {}
                     }
+                }
             }
 
             await user.destroy()
