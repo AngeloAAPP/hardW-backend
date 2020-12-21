@@ -9,6 +9,6 @@ const adverts = require('./app/routes/adverts')
 router.use('/users', users)
 router.use('/authenticate', authenticate)
 router.use('/categories', categories)
-router.use('/adverts', adverts)
+router.use('/announcements', adverts)
 
 module.exports = router
