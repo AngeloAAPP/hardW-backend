@@ -176,7 +176,7 @@ module.exports = {
         const {advertisementID} = req.params
 
         const advertisement = await Advertisement.findByPk(decode(advertisementID), {
-            attributes: ['name', 'description', 'price', 'status', 'createdAt', 'categoryID', 'subcategoryID'],
+            attributes: ['name', 'description', 'price', 'status', 'createdAt'],
             include: [
                 {
                     association: 'user',
@@ -185,6 +185,14 @@ module.exports = {
                         association: 'address',
                         attributes: ['neighbourhood', 'city', 'uf']
                     }
+                },
+                {
+                    association: 'category',
+                    attributes: ['name','imageUrl'],
+                },
+                {
+                    association: 'subcategory',
+                    attributes: ['name','imageUrl'],
                 },
                 {
                     association: 'images',
