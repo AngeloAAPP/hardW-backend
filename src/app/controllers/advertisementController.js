@@ -180,7 +180,7 @@ module.exports = {
             include: [
                 {
                     association: 'user',
-                    attributes: ['name','lastName', 'whatsapp', 'avatarUrl', 'createdAt'],
+                    attributes: ['id','name','lastName', 'whatsapp', 'avatarUrl', 'createdAt'],
                     include: {
                         association: 'address',
                         attributes: ['neighbourhood', 'city', 'uf']
@@ -217,10 +217,15 @@ module.exports = {
             id: encode(question.id)
         }))
 
+
         return res.json({
             success: true,
             ...advertisement.dataValues,
-            questions
+            questions,
+            user: {
+                ...advertisement.user.dataValues,
+                id: encode(advertisement.user.id)
+            }
         })
     },
     //removes an image from the advertisement
