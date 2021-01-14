@@ -40,6 +40,7 @@ module.exports = {
                     }
                 },
                 attributes: ['id', 'name', 'price', 'createdAt', 'categoryID', 'subcategoryID'],
+                order: [['createdAt', 'DESC']],
                 include: [
                     {
                         association: 'images',
@@ -200,7 +201,9 @@ module.exports = {
                 },
                 {
                     association: 'questions',
-                    attributes: ['id', 'question', 'answer', 'createdAt', 'updatedAt']
+                    attributes: ['id', 'question', 'answer', 'createdAt', 'updatedAt'],
+                    separate: true,
+                    order: [['createdAt', 'DESC']]
                 }
             ]
         })
