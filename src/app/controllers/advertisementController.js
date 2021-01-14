@@ -21,11 +21,13 @@ module.exports = {
     index: async(req,res) => {
 
         //filters
-        const categoryID = req.query.categoryID ? [req.query.categoryID] : ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-        const subcategoryID = req.query.subcategoryID ? [req.query.subcategoryID] : ['1', '2', '3']
+        const categoryID = req.query.categoryID ? [req.query.categoryID] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        const subcategoryID = req.query.subcategoryID ? [req.query.subcategoryID] : [null,1,2,3]
         const city = req.query.city || '%'
         const uf = req.query.uf || '%'
         const neighbourhood = req.query.neighbourhood || '%'
+
+        console.log("das: ", subcategoryID)
 
         try {
             //search all adverts
@@ -36,9 +38,10 @@ module.exports = {
                         [Op.in]: categoryID
                     },
                     subcategoryID: {
-                        [Op.in]: subcategoryID
+                        [Op.or]: subcategoryID
                     }
                 },
+                
                 attributes: ['id', 'name', 'price', 'createdAt', 'categoryID', 'subcategoryID'],
                 order: [['createdAt', 'DESC']],
                 include: [
