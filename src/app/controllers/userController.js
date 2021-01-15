@@ -213,7 +213,7 @@ module.exports = {
                 dropTemporaryImage(image)
 
             await user.save()
-            return res.json({ success : true})
+            return res.json({ success : true, avatarUrl: user.avatarUrl})
             
         } catch (err) {
 
