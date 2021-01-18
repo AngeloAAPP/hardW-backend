@@ -9,7 +9,7 @@ const upload = require('../middlewares/multer')
 
 router 
     .get('/', index)
-    .get('/:advertisementID', show)
+    .get('/:advertisementID', (req, res, next) => {req.optionalAuthenticate = true; return next()}, authorizaded, show)
     .post('/', authorizaded,upload.array('image', 6),create)
     .post('/:advertisementID/image', authorizaded, upload.array('image', 6),addImages)
     .post('/:advertisementID/question',authorizaded, createQuestion)

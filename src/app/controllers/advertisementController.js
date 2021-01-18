@@ -221,6 +221,10 @@ module.exports = {
                 message: "Anúncio não encontrado"
             })
 
+        //if the user is not authenticated, whatsapp will not be returned
+        if(!req.user)
+            advertisement.user.whatsapp = undefined
+
         //encode question id
         const questions = advertisement.questions.map(question => ({
             ...question.dataValues,

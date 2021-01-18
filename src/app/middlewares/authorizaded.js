@@ -17,6 +17,9 @@ module.exports = authenticated = (req, res, next) => {
         req.user = decode(user)
     }
     catch(err){
+        if(req.optionalAuthenticate)
+            return next()
+
         return res.status(401).json({
             success: false,
             message: "Acesso restrito"
