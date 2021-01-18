@@ -144,6 +144,8 @@ module.exports = {
                     },
                     {
                         association: 'adverts',
+                        separate: true,
+                        order: [['createdAt', 'DESC']],
                         include: {
                             association: 'images',
                             attributes: ['url'],
@@ -301,8 +303,6 @@ module.exports = {
                 await cloudinary.uploader.destroy(user.imagePublicID)    
 
             const advertsImages = user.dataValues.adverts.map(advertisement => advertisement.images)
-
-            console.log("advertImages é: ", advertsImages)
 
             //deletes images from user adverts on the cloudinary server
             for (const advert of advertsImages) {

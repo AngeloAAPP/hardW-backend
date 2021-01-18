@@ -15,7 +15,6 @@ module.exports = authenticated = (req, res, next) => {
 
         const {user} = verifyToken(token[1])
         req.user = decode(user)
-        console.log(decode(user))
     }
     catch(err){
         return res.status(401).json({
