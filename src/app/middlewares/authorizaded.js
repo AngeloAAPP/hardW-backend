@@ -15,9 +15,11 @@ module.exports = authenticated = (req, res, next) => {
 
         const {user} = verifyToken(token[1])
         req.user = decode(user)
-        console.log(decode(user))
     }
     catch(err){
+        if(req.optionalAuthenticate)
+            return next()
+
         return res.status(401).json({
             success: false,
             message: "Acesso restrito"

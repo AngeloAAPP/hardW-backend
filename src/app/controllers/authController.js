@@ -27,6 +27,8 @@ module.exports = {
                     },
                     {
                         association: 'adverts',
+                        separate: true,
+                        order: [['createdAt', 'DESC']],
                         include: {
                             association: 'images',
                             attributes: ['url']

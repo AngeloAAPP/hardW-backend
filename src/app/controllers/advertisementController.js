@@ -25,20 +25,27 @@ module.exports = {
         const subcategoryID = req.query.subcategoryID ? [req.query.subcategoryID] : [null,1,2,3]
         const city = req.query.city || '%'
         const uf = req.query.uf || '%'
-        const neighbourhood = req.query.neighbourhood || '%'
-
-        console.log("das: ", subcategoryID)
+        const search = req.query.search || '%'
+        const min = req.query.min || 0
+        const max = req.query.max || 99999999
 
         try {
             //search all adverts
             const adverts = await Advertisement.findAll({
                 where: {
                     status: 'Ativo',
+                    name: {
+                        [Op.iLike]: search
+                    },
                     categoryID: {
                         [Op.in]: categoryID
                     },
                     subcategoryID: {
                         [Op.or]: subcategoryID
+                    },
+                    price: {
+                        [Op.gte]: min,
+                        [Op.lte]: max
                     }
                 },
                 
@@ -58,9 +65,6 @@ module.exports = {
                             association: 'address',
                             attributes: ['neighbourhood', 'city', 'uf'],
                             where: {
-                                neighbourhood: {
-                                    [Op.like]: neighbourhood
-                                },
                                 city: {
                                     [Op.like]: city
                                 },
@@ -216,6 +220,10 @@ module.exports = {
                 success: false,
                 message: "Anúncio não encontrado"
             })
+
+        //if the user is not authenticated, whatsapp will not be returned
+        if(!req.user)
+            advertisement.user.whatsapp = undefined
 
         //encode question id
         const questions = advertisement.questions.map(question => ({
