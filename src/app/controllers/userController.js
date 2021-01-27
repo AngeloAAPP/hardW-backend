@@ -148,7 +148,7 @@ module.exports = {
                         order: [['createdAt', 'DESC']],
                         include: {
                             association: 'images',
-                            attributes: ['url'],
+                            attributes: ['url', 'publicID'],
                         }
                     }
                     
