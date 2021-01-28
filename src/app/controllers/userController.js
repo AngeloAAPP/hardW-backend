@@ -148,7 +148,7 @@ module.exports = {
                         order: [['createdAt', 'DESC']],
                         include: {
                             association: 'images',
-                            attributes: ['url', 'publicID'],
+                            attributes: ['id', 'url'],
                         }
                     }
                     
@@ -164,7 +164,13 @@ module.exports = {
         const serializedAdverts = user.adverts.map(advertisement => ({
             ...advertisement.dataValues,
             id: encode(advertisement.id),
-            userID: encode(advertisement.userID)
+            userID: encode(advertisement.userID),
+            images: advertisement.images.map(image => {
+                return {
+                    ...image.dataValues,
+                    id: encode(image.id)
+                }
+            })
         }))
 
         return res.json({
