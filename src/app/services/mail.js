@@ -19,7 +19,7 @@ const sendResetPasswordMail = async({name, to, token}) => {
             <h2> Olá, ${name} </h2>
             <p> notamos que você solicitou a redefinição de senha. Clique no link abaixo ou cole a url no navegador
             para prosseguir com a redefinição </p>
-            <a href = "https://hardw-marketplace.herokuapp.com/reset-password/${token}" 
+            <a href = "https://hardw.netlify.app/reset-password/${token}" 
                 style = "display: block; 
                          color: white; 
                          background-color: black; 
@@ -31,7 +31,7 @@ const sendResetPasswordMail = async({name, to, token}) => {
                          padding: 10px"
                         
             >Refedinir</a>
-            <p> https://hardw-marketplace.herokuapp.com/reset-password/${token} </p>
+            <p> https://hardw.netlify.app/reset-password/${token} </p>
             <p> Se não foi você, <strong> ignore esta mensagem <strong>. </p>
         `
     }
